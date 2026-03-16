@@ -1,0 +1,2 @@
+# ditzmailtemplate
+Ditz mail template 
