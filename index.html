@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ditz — Template Lamaran</title>
+<meta name="description" content="Aplikasi template dan generator teks lamaran kerja profesional">
+<meta name="theme-color" content="#0b0d13">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Ditz">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" href="https://a.top4top.io/p_3727jdu470.png">
+<link rel="apple-touch-icon" href="https://a.top4top.io/p_3727jdu470.png">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- PWA INSTALL BANNER — hanya muncul jika belum install -->
+<div class="pwa-banner hidden" id="pwa-banner">
+  <div class="pwa-banner-icon"><i class="fa-solid fa-d"></i></div>
+  <div class="pwa-banner-text">
+    <strong>Install Ditz</strong>
+    <span>Akses lebih cepat langsung dari home screen</span>
+  </div>
+  <button class="pwa-banner-btn" id="pwa-banner-install-btn"><i class="fa-solid fa-download"></i> Install</button>
+  <button class="pwa-banner-dismiss" id="pwa-banner-dismiss" title="Tutup"><i class="fa-solid fa-xmark"></i></button>
+</div>
+
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+  <div class="logo">
+    <div class="logo-mark"><i class="fa-solid fa-d"></i></div>
+    <div class="logo-info">
+      <div class="logo-name">Ditz</div>
+      <div class="logo-tagline">Template Lamaran</div>
+    </div>
+  </div>
+  <nav class="nav">
+    <div class="nav-item active" data-page="templates" onclick="navigateTo('templates',this)">
+      <div class="nav-icon" style="background:rgba(99,179,237,.12)"><i class="fa-solid fa-layer-group" style="color:#63b3ed"></i></div>
+      <span>Templates</span>
+    </div>
+    <div class="nav-item" data-page="generator" onclick="navigateTo('generator',this)">
+      <div class="nav-icon" style="background:rgba(154,117,243,.12)"><i class="fa-solid fa-wand-magic-sparkles" style="color:#9a75f3"></i></div>
+      <span>Generator</span>
+      <span class="nav-badge">AI</span>
+    </div>
+    <div class="nav-item" data-page="library" onclick="navigateTo('library',this)">
+      <div class="nav-icon" style="background:rgba(72,199,142,.12)"><i class="fa-solid fa-book-bookmark" style="color:#48c78e"></i></div>
+      <span>Library</span>
+      <span class="nav-count" id="lib-nav-count">0</span>
+    </div>
+    <div class="nav-item" data-page="settings" onclick="navigateTo('settings',this)">
+      <div class="nav-icon" style="background:rgba(251,189,35,.12)"><i class="fa-solid fa-gear" style="color:#fbbe23"></i></div>
+      <span>Settings</span>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="sf-tip"><i class="fa-solid fa-circle-info"></i> Semua data tersimpan lokal di browser kamu</div>
+  </div>
+</div>
+
+<!-- OVERLAY (mobile) -->
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+<!-- MAIN -->
+<div class="main" id="main">
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <button class="topbar-menu" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+    <div class="topbar-title" id="topbar-title">Templates</div>
+    <div class="topbar-actions" id="topbar-actions"></div>
+  </div>
+
+  <!-- ==================== PAGE: TEMPLATES ==================== -->
+  <div class="page active" id="page-templates">
+    <div class="page-head">
+      <div>
+        <h1 class="page-title">Koleksi Template</h1>
+        <p class="page-desc">Pilih, salin, atau edit template pesan lamaran kerja siap pakai.</p>
+      </div>
+      <button class="btn-primary" onclick="openAddTemplateModal()">
+        <i class="fa-solid fa-plus"></i> Tambah Template
+      </button>
+    </div>
+
+    <!-- FILTER BAR -->
+    <div class="filter-bar">
+      <div class="search-wrap">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" id="tpl-search" placeholder="Cari template..." oninput="filterTemplates()">
+      </div>
+      <div class="filter-chips" id="tpl-filter-chips">
+        <button class="chip active" data-cat="all" onclick="setTplFilter('all',this)">Semua</button>
+        <button class="chip" data-cat="email" onclick="setTplFilter('email',this)">Email Lamaran</button>
+        <button class="chip" data-cat="followup" onclick="setTplFilter('followup',this)">Follow Up</button>
+        <button class="chip" data-cat="penolakan" onclick="setTplFilter('penolakan',this)">Tanggapi Penolakan</button>
+        <button class="chip" data-cat="custom" onclick="setTplFilter('custom',this)">Custom</button>
+      </div>
+    </div>
+
+    <div class="tpl-grid" id="tpl-grid"></div>
+  </div>
+
+  <!-- ==================== PAGE: GENERATOR ==================== -->
+  <div class="page" id="page-generator">
+    <div class="page-head">
+      <div>
+        <h1 class="page-title">Generator Teks</h1>
+        <p class="page-desc">Isi form, sistem akan merakit teks profesional untuk kamu.</p>
+      </div>
+    </div>
+
+    <!-- INFO BANNER -->
+    <div class="info-banner">
+      <i class="fa-solid fa-lightbulb"></i>
+      <div>
+        <strong>Cara kerja Generator</strong>
+        <p>Sistem akan merakit teks berdasarkan input kamu menggunakan template cerdas. Hasil yang muncul adalah <em>titik awal</em> — silahkan baca dan sesuaikan kembali dengan kebutuhan, gaya bahasa, dan kondisi kamu yang sebenarnya.</p>
+      </div>
+    </div>
+
+    <!-- STEP 1: PILIH KATEGORI -->
+    <div class="gen-section" id="gen-step1">
+      <div class="gen-step-label"><span class="step-num">1</span> Pilih Kategori Generator</div>
+      <div class="gen-cat-grid">
+        <div class="gen-cat-card" data-cat="tentang" onclick="selectGenCat('tentang',this)">
+          <div class="gen-cat-icon" style="background:rgba(99,179,237,.15);color:#63b3ed"><i class="fa-solid fa-user-pen"></i></div>
+          <div class="gen-cat-name">Tentang Saya</div>
+          <div class="gen-cat-desc">Paragraf profil diri untuk CV atau email</div>
+        </div>
+        <div class="gen-cat-card" data-cat="pembuka" onclick="selectGenCat('pembuka',this)">
+          <div class="gen-cat-icon" style="background:rgba(154,117,243,.15);color:#9a75f3"><i class="fa-solid fa-envelope-open-text"></i></div>
+          <div class="gen-cat-name">Pembuka Email</div>
+          <div class="gen-cat-desc">Kalimat pembuka surat lamaran yang menarik</div>
+        </div>
+        <div class="gen-cat-card" data-cat="skill" onclick="selectGenCat('skill',this)">
+          <div class="gen-cat-icon" style="background:rgba(72,199,142,.15);color:#48c78e"><i class="fa-solid fa-star"></i></div>
+          <div class="gen-cat-name">Skill & Pengalaman</div>
+          <div class="gen-cat-desc">Penyampaian skill dan pengalaman kerja</div>
+        </div>
+        <div class="gen-cat-card" data-cat="penutup" onclick="selectGenCat('penutup',this)">
+          <div class="gen-cat-icon" style="background:rgba(251,189,35,.15);color:#fbbe23"><i class="fa-solid fa-handshake"></i></div>
+          <div class="gen-cat-name">Penutup Email</div>
+          <div class="gen-cat-desc">Kalimat penutup yang profesional dan sopan</div>
+        </div>
+        <div class="gen-cat-card" data-cat="objective" onclick="selectGenCat('objective',this)">
+          <div class="gen-cat-icon" style="background:rgba(248,113,113,.15);color:#f87171"><i class="fa-solid fa-bullseye"></i></div>
+          <div class="gen-cat-name">Career Objective</div>
+          <div class="gen-cat-desc">Objective statement di bagian atas CV</div>
+        </div>
+        <div class="gen-cat-card" data-cat="motivasi" onclick="selectGenCat('motivasi',this)">
+          <div class="gen-cat-icon" style="background:rgba(54,201,198,.15);color:#36c9c6"><i class="fa-solid fa-fire-flame-curved"></i></div>
+          <div class="gen-cat-name">Motivasi Melamar</div>
+          <div class="gen-cat-desc">Alasan memilih perusahaan yang kuat</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 2: FORM INPUT -->
+    <div class="gen-section hidden" id="gen-step2">
+      <div class="gen-step-label"><span class="step-num">2</span> Isi Detail <span id="gen-cat-label" style="color:var(--accent-purple)"></span></div>
+      <div class="gen-form-card">
+        <div id="gen-form-fields"></div>
+        <div class="gen-form-actions">
+          <button class="btn-ghost" onclick="resetGenerator()"><i class="fa-solid fa-arrow-left"></i> Ganti Kategori</button>
+          <button class="btn-primary" onclick="runGenerator()"><i class="fa-solid fa-wand-magic-sparkles"></i> Generate Teks</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 3: RESULT -->
+    <div class="gen-section hidden" id="gen-step3">
+      <div class="gen-step-label"><span class="step-num">3</span> Hasil Generate</div>
+
+      <!-- PROCESSING ANIMATION -->
+      <div id="gen-processing" class="gen-processing hidden">
+        <div class="gen-dots">
+          <span></span><span></span><span></span>
+        </div>
+        <p>Merakit teks untuk kamu...</p>
+      </div>
+
+      <!-- RESULT CARD -->
+      <div id="gen-result-card" class="gen-result-card hidden">
+        <div class="gen-result-info-bar">
+          <i class="fa-solid fa-circle-info"></i>
+          <span>Teks ini adalah <strong>titik awal</strong>. Baca ulang dan sesuaikan dengan kondisi, gaya bahasa, dan fakta yang sebenarnya sebelum digunakan.</span>
+        </div>
+        <div class="gen-result-label">Hasil:</div>
+        <textarea id="gen-result-text" class="gen-result-textarea" spellcheck="false"></textarea>
+        <div class="gen-result-actions">
+          <button class="btn-action" onclick="copyGenResult()"><i class="fa-solid fa-copy"></i> Salin</button>
+          <button class="btn-action accent-green" onclick="saveToLibrary()"><i class="fa-solid fa-book-bookmark"></i> Simpan ke Library</button>
+          <button class="btn-action accent-purple" onclick="saveAsTemplate()"><i class="fa-solid fa-layer-group"></i> Jadikan Template</button>
+          <button class="btn-ghost" onclick="resetGenerator()" style="margin-left:auto"><i class="fa-solid fa-rotate-left"></i> Generate Ulang</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== PAGE: LIBRARY ==================== -->
+  <div class="page" id="page-library">
+    <div class="page-head">
+      <div>
+        <h1 class="page-title">Library</h1>
+        <p class="page-desc">Semua teks yang kamu simpan dari Generator.</p>
+      </div>
+    </div>
+
+    <div class="filter-bar">
+      <div class="search-wrap">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" id="lib-search" placeholder="Cari di library..." oninput="filterLibrary()">
+      </div>
+      <div class="filter-chips">
+        <button class="chip active" data-cat="all" onclick="setLibFilter('all',this)">Semua</button>
+        <button class="chip" data-cat="tentang" onclick="setLibFilter('tentang',this)">Tentang Saya</button>
+        <button class="chip" data-cat="pembuka" onclick="setLibFilter('pembuka',this)">Pembuka</button>
+        <button class="chip" data-cat="skill" onclick="setLibFilter('skill',this)">Skill & Pengalaman</button>
+        <button class="chip" data-cat="penutup" onclick="setLibFilter('penutup',this)">Penutup</button>
+        <button class="chip" data-cat="objective" onclick="setLibFilter('objective',this)">Career Objective</button>
+        <button class="chip" data-cat="motivasi" onclick="setLibFilter('motivasi',this)">Motivasi</button>
+      </div>
+    </div>
+
+    <div id="lib-grid" class="lib-grid"></div>
+  </div>
+
+  <!-- ==================== PAGE: SETTINGS ==================== -->
+  <div class="page" id="page-settings">
+    <div class="page-head">
+      <div>
+        <h1 class="page-title">Settings</h1>
+        <p class="page-desc">Kelola data, backup, dan restore aplikasi.</p>
+      </div>
+    </div>
+
+    <div class="settings-sections">
+
+      <div class="settings-card">
+        <div class="settings-card-header">
+          <div class="settings-card-title"><i class="fa-solid fa-database" style="color:#63b3ed"></i> Data & Backup</div>
+        </div>
+        <div class="settings-card-body">
+          <div class="settings-row">
+            <div class="settings-row-info">
+              <div class="settings-row-title">Export Data</div>
+              <div class="settings-row-desc">Unduh semua template dan library sebagai file JSON</div>
+            </div>
+            <button class="btn-secondary" onclick="exportData()"><i class="fa-solid fa-download"></i> Export JSON</button>
+          </div>
+          <div class="settings-row">
+            <div class="settings-row-info">
+              <div class="settings-row-title">Import / Restore Data</div>
+              <div class="settings-row-desc">Pulihkan data dari file JSON backup sebelumnya</div>
+            </div>
+            <label class="btn-secondary" style="cursor:pointer"><i class="fa-solid fa-upload"></i> Import JSON<input type="file" accept=".json" style="display:none" onchange="importData(event)"></label>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-card">
+        <div class="settings-card-header">
+          <div class="settings-card-title"><i class="fa-solid fa-chart-simple" style="color:#48c78e"></i> Statistik</div>
+        </div>
+        <div class="settings-card-body">
+          <div class="stats-grid" id="stats-grid"></div>
+        </div>
+      </div>
+
+      <div class="settings-card" id="pwa-settings-card">
+        <div class="settings-card-header">
+          <div class="settings-card-title"><i class="fa-solid fa-mobile-screen-button" style="color:var(--accent-teal)"></i> Install Aplikasi (PWA)</div>
+        </div>
+        <div class="settings-card-body">
+          <div class="settings-row">
+            <div class="settings-row-info">
+              <div class="settings-row-title" id="pwa-status-title">Cek status install...</div>
+              <div class="settings-row-desc" id="pwa-status-desc">Memuat informasi instalasi.</div>
+            </div>
+            <button class="btn-secondary" id="pwa-settings-btn" style="display:none" onclick="triggerPwaInstall()">
+              <i class="fa-solid fa-download"></i> Install Sekarang
+            </button>
+          </div>
+          <div class="settings-row" style="border-bottom:none">
+            <div class="settings-row-info">
+              <div class="settings-row-title">Keuntungan Install PWA</div>
+              <div class="settings-row-desc">Akses offline, ikon di home screen, tampilan fullscreen tanpa browser bar, loading lebih cepat.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-card danger-card">
+        <div class="settings-card-header">
+          <div class="settings-card-title"><i class="fa-solid fa-triangle-exclamation" style="color:#f87171"></i> Zona Berbahaya</div>
+        </div>
+        <div class="settings-card-body">
+          <div class="settings-row">
+            <div class="settings-row-info">
+              <div class="settings-row-title">Hapus Semua Library</div>
+              <div class="settings-row-desc">Menghapus seluruh teks yang tersimpan di Library. Tidak bisa dibatalkan.</div>
+            </div>
+            <button class="btn-danger" onclick="clearLibrary()"><i class="fa-solid fa-trash"></i> Hapus Library</button>
+          </div>
+          <div class="settings-row">
+            <div class="settings-row-info">
+              <div class="settings-row-title">Reset Template Custom</div>
+              <div class="settings-row-desc">Hapus semua template yang kamu tambahkan sendiri. Template bawaan tetap ada.</div>
+            </div>
+            <button class="btn-danger" onclick="clearCustomTemplates()"><i class="fa-solid fa-rotate-left"></i> Reset Custom</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ABOUT -->
+      <div class="about-card">
+        <div class="about-logo-wrap">
+          <div class="about-logo-mark"><i class="fa-solid fa-d"></i></div>
+          <div class="about-app-name">Ditz</div>
+        </div>
+        <div class="about-version">v1.0.0</div>
+        <p class="about-desc">
+          Aplikasi bantu menulis teks lamaran kerja — dari template siap pakai hingga generator teks otomatis. Semua data tersimpan lokal di browser kamu, tanpa server, tanpa akun.
+        </p>
+        <div class="about-features">
+          <div class="about-feature">
+            <i class="fa-solid fa-layer-group" style="color:var(--accent-blue)"></i>
+            <div class="about-feature-text">
+              <strong>Templates</strong>
+              Koleksi template bawaan + bisa tambah template sendiri
+            </div>
+          </div>
+          <div class="about-feature">
+            <i class="fa-solid fa-wand-magic-sparkles" style="color:var(--accent-purple)"></i>
+            <div class="about-feature-text">
+              <strong>Generator</strong>
+              Rakit teks profesional dari form isian — bukan AI, tapi cerdas
+            </div>
+          </div>
+          <div class="about-feature">
+            <i class="fa-solid fa-book-bookmark" style="color:var(--accent-green)"></i>
+            <div class="about-feature-text">
+              <strong>Library</strong>
+              Simpan dan kelola semua teks hasil generate kamu
+            </div>
+          </div>
+          <div class="about-feature">
+            <i class="fa-solid fa-shield-halved" style="color:var(--accent-amber)"></i>
+            <div class="about-feature-text">
+              <strong>Privasi</strong>
+              100% offline — semua data hanya ada di localStorage browser
+            </div>
+          </div>
+        </div>
+        <div class="about-footer">
+          <i class="fa-solid fa-circle-info" style="margin-right:5px;color:var(--accent-teal)"></i>
+          Teks yang dihasilkan Generator adalah <strong>titik awal</strong>, bukan hasil final.<br>
+          Selalu baca ulang dan sesuaikan dengan kondisi nyata kamu sebelum digunakan.<br><br>
+          Support Author melalui Instagram : @bgs_adityaa
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<!-- ==================== MODAL: ADD/EDIT TEMPLATE ==================== -->
+<div class="modal-overlay hidden" id="modal-template">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title"><i class="fa-solid fa-pen-ruler" style="color:#9a75f3"></i> <span id="modal-tpl-title">Tambah Template</span></div>
+      <button class="modal-close" onclick="closeModal('modal-template')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="modal-tpl-id">
+      <input type="hidden" id="modal-tpl-builtin">
+      <div class="form-group">
+        <label>Nama Template <span class="req">*</span></label>
+        <input type="text" id="modal-tpl-name" placeholder="contoh: Lamaran Frontend Developer">
+      </div>
+      <div class="form-group">
+        <label>Kategori <span class="req">*</span></label>
+        <select id="modal-tpl-cat">
+          <option value="email">Email Lamaran</option>
+          <option value="followup">Follow Up</option>
+          <option value="penolakan">Tanggapi Penolakan</option>
+          <option value="custom">Custom</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Isi Template <span class="req">*</span></label>
+        <div class="textarea-hint"><i class="fa-solid fa-circle-info"></i> Gunakan [NAMA], [POSISI], [PERUSAHAAN] sebagai placeholder yang bisa diganti saat memakai template.</div>
+        <textarea id="modal-tpl-body" rows="10" placeholder="Tulis isi template di sini..."></textarea>
+      </div>
+      <div class="form-group">
+        <label>Deskripsi Singkat <span class="opt">(opsional)</span></label>
+        <input type="text" id="modal-tpl-desc" placeholder="contoh: Cocok untuk posisi teknis di startup">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeModal('modal-template')">Batal</button>
+      <button class="btn-primary" onclick="saveTemplate()"><i class="fa-solid fa-floppy-disk"></i> Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== MODAL: VIEW TEMPLATE ==================== -->
+<div class="modal-overlay hidden" id="modal-view">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <div class="modal-title"><i class="fa-regular fa-file-lines" style="color:#63b3ed"></i> <span id="view-tpl-name"></span></div>
+      <button class="modal-close" onclick="closeModal('modal-view')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="view-meta" id="view-meta"></div>
+      <div class="view-info-bar">
+        <i class="fa-solid fa-circle-info"></i>
+        <span>Placeholder seperti <code>[NAMA]</code>, <code>[POSISI]</code>, <code>[PERUSAHAAN]</code> perlu kamu ganti secara manual sesuai kebutuhan.</span>
+      </div>
+      <pre id="view-tpl-body" class="view-body"></pre>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeModal('modal-view')">Tutup</button>
+      <button class="btn-action" onclick="copyViewTemplate()"><i class="fa-solid fa-copy"></i> Salin</button>
+      <button class="btn-secondary" id="view-edit-btn" onclick="editFromView()"><i class="fa-solid fa-pen"></i> Edit</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== MODAL: VIEW LIBRARY ==================== -->
+<div class="modal-overlay hidden" id="modal-lib-view">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <div class="modal-title"><i class="fa-solid fa-book-bookmark" style="color:#48c78e"></i> <span id="lib-view-title"></span></div>
+      <button class="modal-close" onclick="closeModal('modal-lib-view')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <textarea id="lib-view-body" class="gen-result-textarea" style="min-height:240px"></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeModal('modal-lib-view')">Tutup</button>
+      <button class="btn-action" onclick="copyLibItem()"><i class="fa-solid fa-copy"></i> Salin</button>
+      <button class="btn-action accent-green" onclick="saveLibEdit()"><i class="fa-solid fa-floppy-disk"></i> Simpan Edit</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast hidden" id="toast"></div>
+
+<!-- BOTTOM NAV (mobile) -->
+<div class="bottom-nav">
+  <div class="bnav-item active" data-page="templates" onclick="navigateTo('templates',null)">
+    <i class="fa-solid fa-layer-group"></i><span>Templates</span>
+  </div>
+  <div class="bnav-item" data-page="generator" onclick="navigateTo('generator',null)">
+    <i class="fa-solid fa-wand-magic-sparkles"></i><span>Generator</span>
+  </div>
+  <div class="bnav-item" data-page="library" onclick="navigateTo('library',null)">
+    <i class="fa-solid fa-book-bookmark"></i><span>Library</span>
+  </div>
+  <div class="bnav-item" data-page="settings" onclick="navigateTo('settings',null)">
+    <i class="fa-solid fa-gear"></i><span>Settings</span>
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+<script src="pwa.js"></script>
+</body>
+</html>
